@@ -17,19 +17,17 @@ function setup() {
   pixelDensity(1);
   imageMode(CENTER);
   noStroke();
-  background("#00080f");
+  background("#422c77");
 
   sourceImg.loadPixels();
   maskImg.loadPixels();
 }
 
 function draw() {
-  // How much to shift hue each frame (degrees)
-  const hue_shift = 50;
   // Posterize levels per channel for background
-  const p_levels = 3;
+  const p_levels = 16;
 
-  for (let n = 0; n < 4000; n++) {
+  for (let n = 0; n < 5000; n++) {
     // pick a random pixel
     let x = floor(random(sourceImg.width));
     let y = floor(random(sourceImg.height));
@@ -39,24 +37,31 @@ function draw() {
     let maskVal= maskImg.get(x, y)[0];
 
     if (maskVal > 128) {
-      // playing with hues
-      colorMode(HSB, 360, 100, 100, 255);
-      let c = color(pix[0], pix[1], pix[2]);
-      let h = (hue(c) + renderCounter * hue_shift) % 360;
-      let s = saturation(c);
-      let b = brightness(c);
-      // set fill back to this new HSB color
-      fill(h, s, b);
+      colorMode(RGB, 255);
 
-      // draw a dot
-      ellipse(x, y, map(s, 0, 50, 2, 5));
+      let n = noise(x * 0.05, y * 0.05, x * y * 0.0001);
+      let base = n * 255;
 
-    } else {
+      // Occasionally glitch a color channel
+      let r = base;
+      let g = base;
+      let b = base;
+      if (random() < 0.02) r += random(50, 100);
+      if (random() < 0.02) g += random(50, 100);
+      if (random() < 0.02) b += random(50, 100);
+
+      // Occasional bright flash dots
+      if (random() < 0.001) {
+        r = g = b = 255;
+      }
+
+      // Small squares with offset positions (jitter effect)
+      let xOffset = floor(random(-1, 2));
+      let yOffset = floor(random(-1, 2));
+      fill(r, g, b, 200);
+      rect(x + xOffset, y + yOffset, 10, 5);
+    }else {
       // outside statue: posterize
-
-      // switch back to RGB
-      colorMode(RGB, 255, 255, 255, 255);
-
       // reduce each channel to p_levels steps
       let step = 255 / (p_levels - 1);
       let rP = floor(pix[0] / step) * step;
