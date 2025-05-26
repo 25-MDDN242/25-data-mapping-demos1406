@@ -25,11 +25,11 @@ function setup() {
 
 function draw() {
   // How much to shift hue each frame (degrees)
-  const HUE_SHIFT_PER_FRAME = 50;
+  const hue_shift = 50;
   // Posterize levels per channel for background
-  const POST_LEVELS = 5;
+  const p_levels = 3;
 
-  for (let n = 0; n < 10000; n++) {
+  for (let n = 0; n < 4000; n++) {
     // pick a random pixel
     let x = floor(random(sourceImg.width));
     let y = floor(random(sourceImg.height));
@@ -42,30 +42,29 @@ function draw() {
       // playing with hues
       colorMode(HSB, 360, 100, 100, 255);
       let c = color(pix[0], pix[1], pix[2]);
-      let h = (hue(c) + renderCounter * HUE_SHIFT_PER_FRAME) % 360;
+      let h = (hue(c) + renderCounter * hue_shift) % 360;
       let s = saturation(c);
       let b = brightness(c);
       // set fill back to this new HSB color
       fill(h, s, b);
 
       // draw a dot
-      ellipse(x, y, map(b, 0, 100, 12, 2), map(b, 0, 100, 12, 2));
+      ellipse(x, y, map(s, 0, 50, 2, 5));
 
     } else {
-      // outside statue: POSTERIZE
+      // outside statue: posterize
 
       // switch back to RGB
       colorMode(RGB, 255, 255, 255, 255);
 
-      // reduce each channel to POST_LEVELS steps
-      let step = 255 / (POST_LEVELS - 1);
+      // reduce each channel to p_levels steps
+      let step = 255 / (p_levels - 1);
       let rP = floor(pix[0] / step) * step;
       let gP = floor(pix[1] / step) * step;
       let bP = floor(pix[2] / step) * step;
 
       fill(rP, gP, bP);
-      // draw a little rectangle “brush”
-      rect(x, y, 6, 6);
+      rect(x, y, 100, 5);
     }
   }
 
