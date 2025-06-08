@@ -3,9 +3,9 @@ let maskImg = null;
 let renderCounter = 0;
 
 // change these three lines as appropriate
-let sourceFile = "input_1.jpg";
-let maskFile = "mask_1.png";
-let outputFile = "output_1.png";
+let sourceFile = "input_new2.jpg";
+let maskFile = "mask_new2.png";
+let outputFile = "output_5.png";
 
 function preload() {
   sourceImg = loadImage(sourceFile);
@@ -74,7 +74,7 @@ function draw() {
 
       // 2) Brick‐pattern: width ∈ [8…2] based on brightness
       let br = brightness(c);           // 0–100
-      let bw = map(br, 0, 50, 20, 10);
+      let bw = map(br, 0, 60, 20, 10);
       let drawX = x * (width/sourceImg.width);
       let drawY = y * (height/sourceImg.height);
 
@@ -125,7 +125,7 @@ function draw() {
   if (renderCounter > 10) {
     console.log("Done!");
     noLoop();
-    // saveArtworkImage(outputFile);
+    saveArtworkImage(outputFile);
   }
 }
 
