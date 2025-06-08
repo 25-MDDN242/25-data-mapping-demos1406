@@ -2,9 +2,6 @@ let sourceImg = null;
 let maskImg = null;
 let renderCounter = 0;
 
-let maskCenter = null;
-let maskCenterSize = null;
-
 // change these three lines as appropriate
 let sourceFile = "input_1.jpg";
 let maskFile = "mask_1.png";
@@ -16,90 +13,114 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1920, 1080).parent("canvasContainer");
-  pixelDensity(1);
+  let main_canvas = createCanvas(1920, 1080);
+  main_canvas.parent("canvasContainer");
+
   imageMode(CENTER);
   noStroke();
-  background("#fff");
-
+  background("#fcfbf7");
   sourceImg.loadPixels();
   maskImg.loadPixels();
-
-  maskCenterSearcher(20);
-  maskSizeFinder(20);
 }
 
 function draw() {
-  // Posterize levels per channel for background
-  const p_levels = 5;
-
-  for (let n = 0; n < 12000; n++) {
-    // pick a random pixel
+  // 1) foreground dots / background CMY halftone
+  for (let i = 0; i < 6000; i++) {
     let x = floor(random(sourceImg.width));
     let y = floor(random(sourceImg.height));
+    let pixData = sourceImg.get(x, y);
+    let maskData = maskImg.get(x, y);
 
-    // get the original RGB and mask value
-    let pix = sourceImg.get(x, y);
-    let maskVal = maskImg.get(x, y)[0];
+    // map pixel coords → canvas coords
+    let drawX = x * (width / sourceImg.width);
+    let drawY = y * (height / sourceImg.height);
+    if (maskData[0] > 128) {
+      // --- statue dots (with gamma‐corrected brightness) ---
+      let c0 = color(pixData);
+      let rawB = brightness(c0); // 0–100
+      // push brightness extremes: gamma > 1 makes darks darker and lights lighter
+      let gamma = 1.6;
+      let bNorm = rawB / 100.0; // normalize 0–1
+      let b = pow(bNorm, gamma) * 100; // back to 0–100
 
-    if (maskVal > 128) {
-      // ----- STATUE REGION -----
-      let grey = (pix[0] + pix[1] + pix[2]) / 3;
-      grey = 127.5 + (grey - 127.5) * 3;
-      grey = constrain(grey, 0, 255);
+      // now your cluster logic as before
+      let clusterCount = 0;
+      if (b < 30) clusterCount = 3;
+      else if (b < 60) clusterCount = 2;
+      else if (b < 85) clusterCount = 1;
 
-      let xBound = width / 2 - 50;
-      let yBound = 300;
-      let radius = 200;
-      let d = dist(x, y, xBound, yBound);
+      for (let j = 0; j < clusterCount; j++) {
+        let offsetX = random(-4, 4),
+          offsetY = random(-4, 4);
 
-      if (d < radius) {
-        stroke(grey * 2, grey * 0.7, grey);
-      } else {
-        stroke(grey * 0.2, grey * 0.5, grey);
+        // because you’ve pushed the midtones darker,
+        // more pixels will fall under the “b < 50” check and get magenta
+        let dotColor;
+        if (b < 50) dotColor = color(255, 100, 150);
+        else if (b < 75) dotColor = color(0, 255, 255);
+        else dotColor = color(255, 255, 0);
+
+        fill(dotColor);
+        noStroke();
+        ellipse(drawX + offsetX, drawY + offsetY, 4);
       }
-      strokeWeight(0.5);
-      line(x + 5, y + 5, x - 5, y - 5);
-      line(x - 5, y + 5, x + 5, y - 5);
     } else {
-      // ----- BACKGROUND REGION -----
+      // --- background area ---
+      let c = color(pixData);
+      colorMode(HSB, 360, 100, 100);
+      let h = hue(c);
+      let bgTint = color(h, 10, 0);
+      colorMode(RGB, 255);
 
-      // Generate Perlin noise based on position
-      let noiseVal = noise(x * 0.01, y * 0.01);
-      let alpha = map(noiseVal, 0, 1, 0, 50);
+      // 2) Brick‐pattern: width ∈ [8…2] based on brightness
+      let br = brightness(c);           // 0–100
+      let bw = map(br, 0, 50, 20, 10);
+      let drawX = x * (width/sourceImg.width);
+      let drawY = y * (height/sourceImg.height);
 
-      stroke(255, 255, 200, alpha);
-      strokeWeight(5);
-      line(x, y + 10, x, y - 10);
-      line(x + 10, y, x - 10, y);
+      // Snap drawX/drawY to a fixed “brick grid” to keep alignment
+      drawX = floor(drawX / 10) * 10 + 5;
+      drawY = floor(drawY / 10) * 10 + 5;
+
+      fill(bgTint, 30, 90);
+      noStroke();
+      rect(drawX, drawY, bw, bw * 0.5); // a small “brick‐like” rectangle
+
+      // 3) Overlay a tiny black stroke (1px) at random angle for texture
+      push();
+        translate(drawX, drawY);
+        rotate(random([-PI/8, PI/8]));  // just ±22.5° randomly
+        stroke(0, 80);
+        strokeWeight(1);
+        line(-bw/2, 0, bw/2, 0);
+      pop();
+      colorMode(RGB, 255);
+
     }
   }
 
-  updatePixels();
+  // 2) small halftone overlay on the statue
+  let step = 8;
+  for (let y = 0; y < sourceImg.height; y += step) {
+    for (let x = 0; x < sourceImg.width; x += step) {
+      let maskData = maskImg.get(x, y);
+      if (maskData[0] > 128) {
+        let c = color(sourceImg.get(x, y));
+        let b = brightness(c);
+        let dotSize = map(b, 40, 100, step, 2);
 
-  if (maskCenter !== null) {
-    strokeWeight(5);
-    fill(0, 0, 255);
-    stroke(255, 255, 255);
-    ellipse(maskCenter[0], maskCenter[1], 100);
-    line(
-      maskCenter[0] - 200,
-      maskCenter[1],
-      maskCenter[0] + 200,
-      maskCenter[1]
-    );
-    line(
-      maskCenter[0],
-      maskCenter[1] - 200,
-      maskCenter[0],
-      maskCenter[1] + 200
-    );
-    noFill();
-    let mcw = maskCenterSize[0];
-    let mch = maskCenterSize[1];
-    rect(maskCenter[0] - mcw / 2, maskCenter[1] - mch / 2, mcw, mch);
+        // map to canvas
+        let dx = x * (width / sourceImg.width);
+        let dy = y * (height / sourceImg.height);
+
+        fill(0);
+        noStroke();
+        ellipse(dx, dy, dotSize);
+      }
+    }
   }
 
+  // 3) finish
   renderCounter++;
   if (renderCounter > 10) {
     console.log("Done!");
@@ -111,62 +132,5 @@ function draw() {
 function keyTyped() {
   if (key === "!") {
     saveBlocksImages();
-  }
-}
-
-function maskCenterSearcher(min_width) {
-  let mask_x_sum = 0;
-  let mask_y_sum = 0;
-  let mask_count = 0;
-
-  print("Scanning mask top to bottom...");
-  for (let j = 0; j < maskImg.height; j++) {
-    for (let i = 0; i < maskImg.width; i++) {
-      let maskData = maskImg.get(i, j);
-      if (maskData[1] > 128) {
-        mask_x_sum += i;
-        mask_y_sum += j;
-        mask_count++;
-      }
-    }
-  }
-
-  print("Mask Center Located!");
-  if (mask_count > min_width) {
-    let avg_x_pos = int(mask_x_sum / mask_count);
-    let avg_y_pos = int(mask_y_sum / mask_count);
-    maskCenter = [avg_x_pos, avg_y_pos];
-    print("Center set to: " + maskCenter);
-  }
-}
-
-function maskSizeFinder(min_width) {
-  let max_up_down = 0;
-  let max_left_right = 0;
-
-  print("Scanning mask top to bottom...");
-  for (let j = 0; j < maskImg.height; j++) {
-    let mask_count = 0;
-    for (let i = 0; i < maskImg.width; i++) {
-      let mask = maskImg.get(i, j);
-      if (mask[1] > 128) mask_count++;
-    }
-    max_left_right = max(mask_count, max_left_right);
-  }
-
-  print("Scanning mask left to right...");
-  for (let i = 0; i < maskImg.width; i++) {
-    let mask_count = 0;
-    for (let j = 0; j < maskImg.height; j++) {
-      let mask = maskImg.get(i, j);
-      if (mask[1] > 128) mask_count++;
-    }
-    max_up_down = max(mask_count, max_up_down);
-  }
-
-  print("Scanning mask done!");
-  if (max_left_right > min_width && max_up_down > min_width) {
-    maskCenterSize = [max_left_right, max_up_down];
-    print("Size set to: " + maskCenterSize);
   }
 }
