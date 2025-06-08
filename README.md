@@ -16,9 +16,9 @@ This project takes a masked statue image and:
 
 ## Inspiration
 *I sourced these images from Pinterest, I could not find the original artists*
-![Source: Pinterest](https://nz.pinterest.com/pin/349099408631530115/)
-
-![Source: Pinterest](https://nz.pinterest.com/pin/1688918602184339/)
+![Source: Pinterest](./inspo/cmy.jpg)
+![Source: Pinterest](./inspo/cmy2.jpg)
+![Source: Pinterest](./inspo/statue.jpg)
 
 ## Design Process
 

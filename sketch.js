@@ -125,7 +125,7 @@ function draw() {
   if (renderCounter > 10) {
     console.log("Done!");
     noLoop();
-    saveArtworkImage(outputFile);
+    // saveArtworkImage(outputFile);
   }
 }
 
