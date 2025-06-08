@@ -16,9 +16,9 @@ This project takes a masked statue image and:
 
 ## Inspiration
 *I sourced these images from Pinterest, I could not find the original artists*
-<img src="./inspo/cmy.jpg" width="300">
-<img src="./inspo/cmy2.jpg" width="300">
-<img src="./inspo/statue.jpg" width="300">
+<img src="./inspo/cmy.jpg" width="200">
+<img src="./inspo/cmy2.jpg" width="200">
+<img src="./inspo/statue.jpg" width="200">
 
 ## Design Process
 
