@@ -3,9 +3,9 @@ let maskImg = null;
 let renderCounter = 0;
 
 // change these three lines as appropriate
-let sourceFile = "input_new2.jpg";
-let maskFile = "mask_new2.png";
-let outputFile = "output_5.png";
+let sourceFile = "input_new3.jpg";
+let maskFile = "mask_new3.png";
+let outputFile = "output_6.png";
 
 function preload() {
   sourceImg = loadImage(sourceFile);
@@ -125,7 +125,7 @@ function draw() {
   if (renderCounter > 10) {
     console.log("Done!");
     noLoop();
-    // saveArtworkImage(outputFile);
+    saveArtworkImage(outputFile);
   }
 }
 
