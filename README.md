@@ -14,14 +14,14 @@ This project takes a masked statue image and:
 
 - Overlays a fine black halftone grid on the statue for extra texture.
 
-## Inspiration
+### Inspiration
 *I sourced these images from Pinterest, I could not find the original artists*
 <br>
 <img src="./inspo/cmy.jpg" width="200">
 <img src="./inspo/cmy2.jpg" width="200">
 <img src="./inspo/statue.jpg" width="200">
 
-## Design Process
+### Design Process
 
 I drew on photos of classical statues I shot during my travels in Greece and Italy, choosing their timeless forms because their strong, sculptural outlines would translate clearly through whatever filter I applied.- I experimented with classic photo filters like posterize, blur, mosaic, and random colour mappings but the results felt aimless and lacked cohesion. I realized I needed a strong, unifying visual theme to guide the design.- I drew inspiration from vintage comics and Risograph prints, settling on a restrained cyan-magenta-yellow palette and using evenly spaced dot clusters to handle mid-tone shading.
 
