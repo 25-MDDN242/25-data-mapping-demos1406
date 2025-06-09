@@ -3,8 +3,8 @@ let maskImg = null;
 let renderCounter = 0;
 
 // change these three lines as appropriate
-let sourceFile = "input_new3.jpg";
-let maskFile = "mask_new3.png";
+let sourceFile = "input_1.jpg";
+let maskFile = "mask_1.png";
 let outputFile = "output_6.png";
 
 function preload() {
