@@ -31,7 +31,6 @@ function draw() {
     let pixData = sourceImg.get(x, y);
     let maskData = maskImg.get(x, y);
 
-    // map pixel coords → canvas coords
     let drawX = x * (width / sourceImg.width);
     let drawY = y * (height / sourceImg.height);
     if (maskData[0] > 128) {
@@ -43,7 +42,6 @@ function draw() {
       let bNorm = rawB / 100.0; // normalize 0–1
       let b = pow(bNorm, gamma) * 100; // back to 0–100
 
-      // now your cluster logic as before
       let clusterCount = 0;
       if (b < 30) clusterCount = 3;
       else if (b < 60) clusterCount = 2;
@@ -53,8 +51,6 @@ function draw() {
         let offsetX = random(-4, 4),
           offsetY = random(-4, 4);
 
-        // because you’ve pushed the midtones darker,
-        // more pixels will fall under the “b < 50” check and get magenta
         let dotColor;
         if (b < 50) dotColor = color(255, 100, 150);
         else if (b < 75) dotColor = color(0, 255, 255);
@@ -72,7 +68,7 @@ function draw() {
       let bgTint = color(h, 10, 0);
       colorMode(RGB, 255);
 
-      // 2) Brick‐pattern: width ∈ [8…2] based on brightness
+      // Brick‐pattern: width based on brightness
       let br = brightness(c);           // 0–100
       let bw = map(br, 0, 60, 20, 10);
       let drawX = x * (width/sourceImg.width);
@@ -86,10 +82,10 @@ function draw() {
       noStroke();
       rect(drawX, drawY, bw, bw * 0.5); // a small “brick‐like” rectangle
 
-      // 3) Overlay a tiny black stroke (1px) at random angle for texture
+      // Overlay a tiny black stroke (1px) at random angle for texture
       push();
         translate(drawX, drawY);
-        rotate(random([-PI/8, PI/8]));  // just ±22.5° randomly
+        rotate(random([-PI/8, PI/8]));
         stroke(0, 80);
         strokeWeight(1);
         line(-bw/2, 0, bw/2, 0);
@@ -99,7 +95,7 @@ function draw() {
     }
   }
 
-  // 2) small halftone overlay on the statue
+  // small halftone overlay on the statue
   let step = 8;
   for (let y = 0; y < sourceImg.height; y += step) {
     for (let x = 0; x < sourceImg.width; x += step) {
@@ -120,7 +116,6 @@ function draw() {
     }
   }
 
-  // 3) finish
   renderCounter++;
   if (renderCounter > 10) {
     console.log("Done!");
